@@ -139,3 +139,56 @@ def minimax_with_alpha_beta(board, depth, alpha, beta, maximizingPlayer):
         return column, value
 draw_game_board(board)
 
+
+# Main game loop
+while not game_over:
+
+    # Handle Pygame events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+
+        if event.type == pygame.MOUSEBUTTONDOWN and turn == 1:
+            # Get the column where the user clicked
+            posx = event.pos[0]
+            col = int(posx / SQUARE_SIZE)
+
+            # Check if the move is valid
+            if can_place(board, col):
+                row = next_available_row(board, col)
+                make_move(board, row, col, turn)
+
+                # Check if the game is over
+                if check_win(board, turn):
+                    print("You win!")
+                    game_over = True
+
+                # Switch to the Computer's turn
+                turn = 2
+
+        # Computer's turn
+        if turn == 2:
+            # Get the Computer's move
+            col, minimax_score = minimax_with_alpha_beta(board, 5, float('-inf'), float('inf'), True)
+
+            # Make the move
+            row = next_available_row(board, col)
+            make_move(board, row, col, turn)
+
+            # Check if the game is over
+            if check_win(board, turn):
+                print("Game Over !")
+                game_over = True
+
+            # Switch to the player's turn
+            turn = 1
+
+            # Draw the updated board
+            draw_game_board(board)
+
+    # Update the display
+    pygame.display.update()
+
+# Quit the game
+pygame.quit()
+
