@@ -25,7 +25,6 @@ screen = pygame.display.set_mode(size)
 def set_up_board():
     board = [[0] * COLUMN_COUNT for _ in range(ROW_COUNT)]
     return board
-#-----------------------------------------------------------------------------------------------------------------
 # adding the draw_game_board function
 def draw_game_board(board):
     for r in range(ROW_COUNT):
@@ -92,5 +91,51 @@ game_over = False
 turn = 1
 
 # Draw the initial board
+# make the nini max algorithm with alpha beta
+def minimax_with_alpha_beta(board, depth, alpha, beta, maximizingPlayer):
+    valid_cols= [col for col in range(COLUMN_COUNT) if can_place(board, col)]
+
+    # Check if the game has ended or the maximum depth has been reached
+    if depth == 0 or len(valid_cols) == 0 or check_win(board, 1) or check_win(board, 2):
+        if check_win(board, 2):
+            return (None, 100000000000000)
+        elif check_win(board, 1):
+            return (None, -10000000000000)
+        else:
+            return (None, 0)
+
+    # If the Computer is maximizing
+    if maximizingPlayer:
+        value = float('-inf')
+        column = random.choice(valid_cols)
+        for col in valid_cols:
+            row = next_available_row(board, col)
+            temp_board = [row[:] for row in board]
+            make_move(temp_board, row, col, 2)
+            new_score = minimax_with_alpha_beta(temp_board, depth - 1, alpha, beta, False)[1]
+            if new_score > value:
+                value = new_score
+                column = col
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return column, value
+
+    # If the Computer is minimizing
+    else:
+        value = float('inf')
+        column = random.choice(valid_cols)
+        for col in valid_cols:
+            row = next_available_row(board, col)
+            temp_board =[row[:] for row in board]
+            make_move(temp_board, row, col, 1)
+            new_score = minimax_with_alpha_beta(temp_board, depth - 1, alpha, beta, True)[1]
+            if new_score < value:
+                value = new_score
+                column = col
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+        return column, value
 draw_game_board(board)
 
